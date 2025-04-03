@@ -96,13 +96,15 @@
   }
 }
 
+@layer utilities {
+  .glass-card {
+    @apply backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/20;
+  }
+}
+
 @layer components {
   .expense-card {
-    @apply bg-white rounded-lg shadow-md p-6 transition-transform duration-200;
-  }
-  
-  .expense-card:hover {
-    @apply shadow-lg transform -translate-y-1;
+    @apply bg-white rounded-lg shadow-md p-6 transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
   }
   
   .expense-form-section {
@@ -110,10 +112,84 @@
   }
   
   .expense-stats-card {
-    @apply p-4 border rounded-lg bg-white shadow-sm;
+    @apply p-4 border rounded-lg bg-white shadow-sm transition-all duration-200 hover:shadow-md;
   }
   
   .dashboard-summary-card {
-    @apply p-6 rounded-xl shadow-md border border-border bg-card;
+    @apply p-6 rounded-xl shadow-md border border-border bg-card hover:shadow-lg transition-all duration-200;
+  }
+  
+  .card-container {
+    @apply space-y-8;
+  }
+  
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-white rounded-md px-4 py-2 font-medium transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary/90 text-white rounded-md px-4 py-2 font-medium transition-colors;
+  }
+  
+  .btn-outline {
+    @apply border border-input bg-transparent hover:bg-accent hover:text-accent-foreground rounded-md px-4 py-2 font-medium transition-colors;
+  }
+  
+  .input-field {
+    @apply px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
 }
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.5s ease-out;
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.03);
+}
+

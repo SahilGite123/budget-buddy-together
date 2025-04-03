@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Home, Receipt, Users, PieChart, Settings, LogOut } from 'lucide-react';
+import { Home, Receipt, Users, PieChart, Settings, LogOut, Wallet } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 type SidebarItemProps = {
@@ -16,10 +16,10 @@ const SidebarItem = ({ icon: Icon, label, href, active }: SidebarItemProps) => {
     <Link
       to={href}
       className={cn(
-        'flex items-center py-3 px-4 rounded-lg text-sidebar-foreground gap-3 transition-colors',
+        'flex items-center py-3 px-4 rounded-lg text-sidebar-foreground gap-3 transition-all duration-200 animate-slide-in',
         active
           ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-          : 'hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+          : 'hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:translate-x-1'
       )}
     >
       <Icon className="h-5 w-5" />
@@ -38,22 +38,10 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 h-screen bg-sidebar-background flex flex-col border-r border-sidebar-border">
-      <div className="flex items-center py-6 px-4">
+      <div className="flex items-center py-6 px-4 animate-fade-in">
         <div className="h-10 w-10 rounded-full bg-sidebar-primary/10 flex items-center justify-center mr-3">
           <div className="h-6 w-6 text-sidebar-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 12H3" />
-              <path d="M21 16H7a2 2 0 1 1 0-4h12a2 2 0 1 0 0-4H3" />
-              <path d="M15 20H6a2 2 0 1 1 0-4h12" />
-            </svg>
+            <Wallet className="h-6 w-6" />
           </div>
         </div>
         <div>

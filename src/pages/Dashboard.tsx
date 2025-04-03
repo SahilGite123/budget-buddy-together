@@ -14,24 +14,26 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
       
-      <WalletCards 
-        wallets={wallets}
-        onUpdateWallet={handleUpdateWallet}
-        onTransferToSavings={transferToSavings}
-        onUseSavings={useSavings}
-      />
-      
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold">Expense Summary</h2>
-        <DashboardSummary />
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-3">
-        <ExpenseChart />
-        <RecentTransactions />
+      <div className="card-container space-y-6">
+        <WalletCards 
+          wallets={wallets}
+          onUpdateWallet={handleUpdateWallet}
+          onTransferToSavings={transferToSavings}
+          onUseSavings={useSavings}
+        />
+        
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold">Expense Summary</h2>
+          <DashboardSummary />
+        </div>
+        
+        <div className="grid gap-6 md:grid-cols-3">
+          <ExpenseChart />
+          <RecentTransactions />
+        </div>
       </div>
     </div>
   );
