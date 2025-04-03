@@ -2,7 +2,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Home, Receipt, Users, PieChart, Settings, LogOut } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type SidebarItemProps = {
   icon: React.ElementType;
@@ -30,7 +30,7 @@ const SidebarItem = ({ icon: Icon, label, href, active }: SidebarItemProps) => {
 
 const Sidebar = () => {
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   if (isMobile) {
     return null; // Mobile view handled by main layout
