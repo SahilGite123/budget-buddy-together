@@ -64,3 +64,29 @@ export interface GroupExpenseSummary {
   youOwe: number;
   youAreOwed: number;
 }
+
+export interface Wallet {
+  id: string;
+  type: 'spending' | 'savings';
+  amount: number;
+  monthlyLimit?: number;
+  savingsGoal?: number;
+  fixedExpenses?: number;
+}
+
+export interface DailyExpense {
+  date: string;
+  amount: number;
+  category: ExpenseCategory;
+}
+
+export interface MonthlyExpenseTrend {
+  month: string;
+  amount: number;
+}
+
+export interface CategoryExpense {
+  category: ExpenseCategory;
+  amount: number;
+  percentage: number;
+}

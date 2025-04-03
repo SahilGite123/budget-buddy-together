@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Expense, Group, ExpenseSummary, GroupExpenseSummary, ExpenseCategory } from '@/types';
+import { Expense, Group, ExpenseSummary, GroupExpenseSummary, ExpenseCategory, Wallet } from '@/types';
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data for demo purposes
 const SAMPLE_EXPENSES: Expense[] = [
@@ -62,6 +63,47 @@ const SAMPLE_EXPENSES: Expense[] = [
     category: 'Utilities',
     description: 'Monthly electricity payment',
     isGroup: false
+  },
+  // Add some sample data from previous months
+  {
+    id: '6',
+    title: 'Groceries - March',
+    amount: 92.30,
+    date: new Date('2025-03-15'),
+    category: 'Food',
+    isGroup: false
+  },
+  {
+    id: '7',
+    title: 'Internet Bill - March',
+    amount: 65.00,
+    date: new Date('2025-03-20'),
+    category: 'Utilities',
+    isGroup: false
+  },
+  {
+    id: '8',
+    title: 'Car Repair - February',
+    amount: 230.50,
+    date: new Date('2025-02-10'),
+    category: 'Transportation',
+    isGroup: false
+  },
+  {
+    id: '9',
+    title: 'Dinner Out - February',
+    amount: 58.25,
+    date: new Date('2025-02-28'),
+    category: 'Food',
+    isGroup: false
+  },
+  {
+    id: '10',
+    title: 'New Shoes - January',
+    amount: 120.00,
+    date: new Date('2025-01-05'),
+    category: 'Shopping',
+    isGroup: false
   }
 ];
 
@@ -93,15 +135,36 @@ const SAMPLE_GROUPS: Group[] = [
   }
 ];
 
+// Sample wallets
+const SAMPLE_WALLETS: Wallet[] = [
+  {
+    id: 'wallet-1',
+    type: 'spending',
+    amount: 1500,
+    monthlyLimit: 2000
+  },
+  {
+    id: 'wallet-2',
+    type: 'savings',
+    amount: 500,
+    savingsGoal: 2000,
+    fixedExpenses: 800
+  }
+];
+
 type ExpenseContextType = {
   expenses: Expense[];
   groups: Group[];
+  wallets: Wallet[];
   addExpense: (expense: Omit<Expense, 'id'>) => void;
   updateExpense: (id: string, expense: Partial<Expense>) => void;
   deleteExpense: (id: string) => void;
   addGroup: (group: Omit<Group, 'id' | 'createdAt' | 'totalExpenses'>) => void;
   updateGroup: (id: string, group: Partial<Group>) => void;
   deleteGroup: (id: string) => void;
+  updateWallet: (id: string, updates: Partial<Wallet>) => void;
+  transferToSavings: (amount: number) => void;
+  useSavings: (amount: number) => void;
   getExpenseSummary: () => ExpenseSummary;
   getGroupExpenseSummaries: () => GroupExpenseSummary[];
   getGroupExpenses: (groupId: string) => Expense[];
@@ -112,8 +175,10 @@ type ExpenseContextType = {
 const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined);
 
 export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { toast } = useToast();
   const [expenses, setExpenses] = useState<Expense[]>(SAMPLE_EXPENSES);
   const [groups, setGroups] = useState<Group[]>(SAMPLE_GROUPS);
+  const [wallets, setWallets] = useState<Wallet[]>(SAMPLE_WALLETS);
 
   const addExpense = (expense: Omit<Expense, 'id'>) => {
     const newExpense = {
@@ -121,6 +186,14 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
       id: `expense-${Date.now()}`
     };
     setExpenses([...expenses, newExpense]);
+    
+    // Update wallet balance
+    const spendingWallet = wallets.find(w => w.type === 'spending');
+    if (spendingWallet) {
+      updateWallet(spendingWallet.id, { 
+        amount: Math.max(0, spendingWallet.amount - expense.amount) 
+      });
+    }
     
     // Update group total if it's a group expense
     if (expense.isGroup && expense.groupId) {
@@ -130,6 +203,11 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
           : group
       ));
     }
+    
+    toast({
+      title: "Expense Added",
+      description: `Added ${expense.title} for $${expense.amount.toFixed(2)}`
+    });
   };
 
   const updateExpense = (id: string, updatedFields: Partial<Expense>) => {
@@ -172,6 +250,50 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setGroups(groups.filter(group => group.id !== id));
     // Remove all expenses associated with this group
     setExpenses(expenses.filter(expense => expense.groupId !== id));
+  };
+  
+  const updateWallet = (id: string, updates: Partial<Wallet>) => {
+    setWallets(wallets.map(wallet => 
+      wallet.id === id ? { ...wallet, ...updates } : wallet
+    ));
+  };
+  
+  const transferToSavings = (amount: number) => {
+    const spendingWallet = wallets.find(w => w.type === 'spending');
+    const savingsWallet = wallets.find(w => w.type === 'savings');
+    
+    if (!spendingWallet || !savingsWallet) return;
+    
+    if (amount > spendingWallet.amount) {
+      toast({
+        title: "Transfer Failed",
+        description: "Not enough funds in spending wallet",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    updateWallet(spendingWallet.id, { amount: spendingWallet.amount - amount });
+    updateWallet(savingsWallet.id, { amount: savingsWallet.amount + amount });
+  };
+  
+  const useSavings = (amount: number) => {
+    const spendingWallet = wallets.find(w => w.type === 'spending');
+    const savingsWallet = wallets.find(w => w.type === 'savings');
+    
+    if (!spendingWallet || !savingsWallet) return;
+    
+    if (amount > savingsWallet.amount) {
+      toast({
+        title: "Transfer Failed",
+        description: "Not enough funds in savings wallet",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    updateWallet(savingsWallet.id, { amount: savingsWallet.amount - amount });
+    updateWallet(spendingWallet.id, { amount: spendingWallet.amount + amount });
   };
 
   const getExpenseSummary = (): ExpenseSummary => {
@@ -267,12 +389,16 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
     <ExpenseContext.Provider value={{
       expenses,
       groups,
+      wallets,
       addExpense,
       updateExpense,
       deleteExpense,
       addGroup,
       updateGroup,
       deleteGroup,
+      updateWallet,
+      transferToSavings,
+      useSavings,
       getExpenseSummary,
       getGroupExpenseSummaries,
       getGroupExpenses,
